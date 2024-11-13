@@ -1,31 +1,65 @@
 # hybrid_rnns_reward_learning
 
-TODO(b/361357995): Add a description for your new project, explain what is
-being released here, etc... Additional, the following sections are normally
-expected for all releases. Feel free to add additional sections if appropriate
-for your project.
+This code fits "hybrid RNNs" to behavioral datasets. Behavioral datasets will
+usually be bandit tasks performed by humans.
+
+## Interactive Usage
+
+The Colab train_models.ipynb provides a simple example of running this code
+interactively.
 
 ## Installation
 
-Write instructions for how the user should install your code. The instructions
-should ideally be valid when copy-pasted. You can combine this with the Usage
-section if there's no separate installation step.
+To install the code and requirements, please run the following command:
+```bash
+git clone https://github.com/deepmind/hybrid_rnns_reward_learning.git
+python3 -m venv hybrnn_venv
+source hybrnn_venv/bin/activate
+pip install --upgrade pip
+pip install -r ./requirements.txt
+```
 
-## Usage
+### Demo
 
-Write example usage of your code. The instructions should ideally be valid when
-copy-pasted, and will be used by your technical reviewer to verify that your
-package functions correctly.
+The Colab train_models.ipynb provides a demo for training a model on a given
+dataset. In short:
+config = rnn_config.get_config()
+fit_hyb_rnn.train(config)
+
+### Instructions for Use
+
+Please follow the following steps:
+1. Adapt the config. The config file will specify the training procedure. You
+can set the number of training steps, batch size, and size of the hidden layer
+in the model. You can also set the parameters of the cognitive models,
+including basic parameters such as learning rate, forgetting, decision
+temperature, etc.; and also the parameters specific to the hybrid models, such
+as the type of recurrence (e.g., context versus memory).
+2. Point the code to the right data directory. If you use our provided
+example dataset, use the following link:
+'/path/to/dataset/openSourceHumDataset.csv'
+If you use our provided full-size dataset, use this link:
+'/path/to/dataset/openSourceHumDataset.csv'
+3. Run the training loop. This will print a simple training update every few
+hundred steps to check the training is progressing. In 2024 and using standard
+assignment of resources on a Google Colab, training a single instance of the
+full model on the full dataset until convergence will typically require a few
+hours. Training a smaller model on a smaller dataset and/or for fewer timesteps
+will require a few minutes.
 
 ## Citing this work
 
-Add citation details here, usually a pastable BibTeX snippet:
+If you use this code, please cite the following paper:
 
 ```latex
-@article{publicationname,
-      title={Publication Name},
-      author={Author One and Author Two and Author Three},
-      year={2024},
+@article{eckstein_summerfield_daw_miller_2024,
+ title={Hybrid Neural-Cognitive Models Reveal How Memory Shapes Human Reward Learning},
+ url={osf.io/preprints/psyarxiv/u9ks4},
+ DOI={10.31234/osf.io/u9ks4},
+ publisher={PsyArXiv},
+ author={Eckstein, Maria and Summerfield, Christopher and Daw, Nathaniel and Miller, Kevin J},
+ year={2024},
+ month={Jul}
 }
 ```
 
