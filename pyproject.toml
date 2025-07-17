@@ -17,6 +17,7 @@ keywords = []
 # Installed locally with `pip install -e .`
 dependencies = [
 "dm-haiku>=0.0.13, <0.1",
+"jax~=0.5",
 "chex~=0.1",
 "optax~=0.2",
 "numpy>=2.0, <3.0",
