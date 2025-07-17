@@ -2,6 +2,7 @@
 # Project metadata. Available keys are documented at:
 # https://packaging.python.org/en/latest/specifications/declaring-project-metadata
 name = "hybrid_rnns_reward_learning"
+version="0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.11"
@@ -27,10 +28,6 @@ dependencies = [
 "pandas~=2.2",
 "ml_collections>0.1",
 ]
-
-
-# `version` is automatically set by flit to use `disentangled_rnns.__version__`
-dynamic = ["version"]
 
 [project.urls]
 homepage = "https://github.com/google-deepmind/hybrid_rnns_reward_learning"
