@@ -111,6 +111,7 @@ def train(config):
     new_params = optax.apply_updates(params, updates)
 
     scalars = {'train_loss': [loss]}
+    print('test')
     # Track fitted parameter values
     if config.model_name == 'cogmod':
       if 'cog_mod' in params:
