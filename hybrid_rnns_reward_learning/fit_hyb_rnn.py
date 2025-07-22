@@ -212,6 +212,8 @@ def train(config):
 
       print('Step: {},\nScalars: {}'.format(current_step, scalars))
 
+  return scalars, params
+
 
 def main(_):
   train(_CONFIG.value)
