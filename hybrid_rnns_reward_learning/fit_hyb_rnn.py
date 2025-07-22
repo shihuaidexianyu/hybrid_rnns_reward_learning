@@ -111,23 +111,6 @@ def train(config):
     new_params = optax.apply_updates(params, updates)
 
     scalars = {'train_loss': [loss]}
-    # Track fitted parameter values
-    if config.model_name == 'cogmod':
-      if 'cog_mod' in params:
-        for p in rl_param_names:
-          for p_rnn in params['cog_mod'].keys():
-            if p in p_rnn:
-              scalars.update({p: [params['cog_mod'][p_rnn]]})
-
-    elif config.model_name == 'birnn':
-      if 'bi_rnn' in params.keys():
-        if 'init_value' in params['bi_rnn']:
-          scalars.update({'init_value': [params['bi_rnn']['init_value']]})
-        if 'init_value_v' in params['bi_rnn']:
-          scalars.update({'init_value_v': [params['bi_rnn']['init_value_v']]})
-        if 'init_value_h' in params['bi_rnn']:
-          scalars.update({'init_value_h': [params['bi_rnn']['init_value_h']]})
-
     return new_params, new_opt_state, scalars
 
   # Get training, validation, and testing data
