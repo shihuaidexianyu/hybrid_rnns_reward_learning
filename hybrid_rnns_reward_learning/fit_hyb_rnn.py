@@ -120,6 +120,7 @@ def train(config):
               scalars.update({p: [params['cog_mod'][p_rnn]]})
 
     elif config.model_name == 'birnn':
+      print('yay!') 
       if 'bi_rnn' in params.keys():
         if 'init_value' in params['bi_rnn']:
           scalars.update({'init_value': [params['bi_rnn']['init_value']]})
