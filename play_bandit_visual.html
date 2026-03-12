@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>四臂老虎机</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --ink: #1f1b18;
+      --muted: #6d6259;
+      --accent: #bf4d22;
+      --button: #fffaf2;
+      --line: rgba(31, 27, 24, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "PingFang SC", "Noto Sans SC", sans-serif;
+    }
+
+    main {
+      width: min(720px, 100%);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-family: Georgia, "Songti SC", serif;
+    }
+
+    p {
+      margin: 0 auto 14px;
+      max-width: 42ch;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .status {
+      margin: 0 auto 8px;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .reward-box {
+      width: min(220px, 100%);
+      margin: 0 auto 14px;
+      padding: 14px 16px;
+      border: 2px solid rgba(191, 77, 34, 0.22);
+      border-radius: 18px;
+      background: #fffaf2;
+      box-shadow: 0 10px 24px rgba(191, 77, 34, 0.08);
+    }
+
+    .reward-label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .reward-value {
+      margin-top: 6px;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .baseline {
+      margin: 0 auto 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 18px;
+      text-align: left;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #fffaf2;
+      color: var(--ink);
+    }
+
+    .action-button {
+      min-height: 48px;
+      font-size: 16px;
+      border-radius: 14px;
+    }
+
+    button {
+      min-height: 120px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--button);
+      color: var(--ink);
+      font-size: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      border-color: rgba(191, 77, 34, 0.35);
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.45;
+    }
+
+    .active {
+      border-color: rgba(191, 77, 34, 0.45);
+      box-shadow: 0 12px 24px rgba(191, 77, 34, 0.12);
+      color: var(--accent);
+    }
+
+    .primary {
+      background: #bf4d22;
+      color: #fffaf2;
+      border-color: #bf4d22;
+    }
+
+    .secondary {
+      background: #efe6d8;
+    }
+
+    .chart-wrap {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fffaf2;
+      padding: 12px;
+    }
+
+    .chart-title {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    @media (max-width: 640px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .buttons {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        min-height: 88px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>四臂老虎机</h1>
+    <p>每轮从 4 个按钮中选 1 个。只有你选中的按钮会给出 reward，而且各按钮的 reward 会随时间漂移。目标是在 150 轮内拿到更高总分。</p>
+    <div class="controls">
+      <div class="field">
+        <label for="trialInput">轮数</label>
+        <input id="trialInput" type="number" min="10" max="500" value="150">
+      </div>
+      <div class="field">
+        <label for="seedInput">Seed</label>
+        <input id="seedInput" type="number" value="42">
+      </div>
+      <div class="field">
+        <label for="driftInput">漂移强度</label>
+        <input id="driftInput" type="number" min="0" max="20" step="0.1" value="2.8">
+      </div>
+      <button class="action-button primary" id="startButton">启动</button>
+      <button class="action-button secondary" id="stopButton">停止</button>
+    </div>
+    <div class="status" id="status">未开始</div>
+    <div class="reward-box">
+      <div class="reward-label">本轮得分</div>
+      <div class="reward-value" id="rewardValue">-</div>
+    </div>
+    <div class="baseline" id="baseline"></div>
+    <div class="buttons">
+      <button data-arm="0" disabled>1</button>
+      <button data-arm="1" disabled>2</button>
+      <button data-arm="2" disabled>3</button>
+      <button data-arm="3" disabled>4</button>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">统计图表</div>
+      <canvas id="chart" width="696" height="260"></canvas>
+    </div>
+  </main>
+
+  <script>
+    const N_ARMS = 4;
+    const DECAY = 0.9836;
+    const OBSERVATION_STD = 4.0;
+    const CENTER = 50;
+    const REWARD_MIN = 1;
+    const REWARD_MAX = 100;
+
+    const buttons = [...document.querySelectorAll("button[data-arm]")];
+    const status = document.getElementById("status");
+    const rewardValue = document.getElementById("rewardValue");
+    const baseline = document.getElementById("baseline");
+    const chart = document.getElementById("chart");
+    const ctx = chart.getContext("2d");
+    const trialInput = document.getElementById("trialInput");
+    const seedInput = document.getElementById("seedInput");
+    const driftInput = document.getElementById("driftInput");
+    const startButton = document.getElementById("startButton");
+    const stopButton = document.getElementById("stopButton");
+
+    const state = {
+      started: false,
+      stopped: false,
+      totalTrials: 150,
+      seed: 42,
+      driftStd: 2.8,
+      trialIndex: 0,
+      totalReward: 0,
+      lastChoice: null,
+      lastReward: null,
+      payouts: [],
+      cumulativeRewards: [],
+      choiceCounts: [0, 0, 0, 0],
+      randomExpectationTotal: 0,
+      randomExpectationPath: [],
+      optimalTotal: 0,
+      optimalPath: [],
+    };
+
+    function mulberry32(seed) {
+      let t = seed >>> 0;
+      return function() {
+        t += 0x6D2B79F5;
+        let z = t;
+        z = Math.imul(z ^ (z >>> 15), z | 1);
+        z ^= z + Math.imul(z ^ (z >>> 7), z | 61);
+        return ((z ^ (z >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function gaussian(rng) {
+      let u = 0;
+      let v = 0;
+      while (u === 0) u = rng();
+      while (v === 0) v = rng();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    function clampReward(value) {
+      return Math.min(REWARD_MAX, Math.max(REWARD_MIN, value));
+    }
+
+    function generateBlock(totalTrials, seed, driftStd) {
+      const rng = mulberry32(seed);
+      const latent = Array.from({ length: totalTrials }, () => Array(N_ARMS).fill(0));
+      const payouts = Array.from({ length: totalTrials }, () => Array(N_ARMS).fill(0));
+
+      for (let arm = 0; arm < N_ARMS; arm += 1) {
+        latent[0][arm] = Math.floor(rng() * 100) + 1;
+        payouts[0][arm] = clampReward(latent[0][arm] + gaussian(rng) * OBSERVATION_STD);
+      }
+
+      for (let trial = 1; trial < totalTrials; trial += 1) {
+        for (let arm = 0; arm < N_ARMS; arm += 1) {
+          const currentMean =
+            DECAY * latent[trial - 1][arm] +
+            (1 - DECAY) * CENTER +
+            gaussian(rng) * driftStd;
+          latent[trial][arm] = clampReward(currentMean);
+          payouts[trial][arm] = clampReward(
+            latent[trial][arm] + gaussian(rng) * OBSERVATION_STD
+          );
+        }
+      }
+
+      return payouts;
+    }
+
+    function computeRandomExpectation(payouts) {
+      let runningTotal = 0;
+      const path = payouts.map((trial) => {
+        runningTotal += trial.reduce((sum, value) => sum + value, 0) / trial.length;
+        return runningTotal;
+      });
+      return {
+        total: runningTotal,
+        path,
+      };
+    }
+
+    function computeOptimalPath(payouts) {
+      let runningTotal = 0;
+      const path = payouts.map((trial) => {
+        runningTotal += Math.max(...trial);
+        return runningTotal;
+      });
+      return {
+        total: runningTotal,
+        path,
+      };
+    }
+
+    function updateStatus(extra = "") {
+      if (!state.started) {
+        status.textContent = "未开始";
+        rewardValue.textContent = "-";
+        return;
+      }
+
+      if (state.stopped) {
+        status.textContent = `已停止 | 总分 ${state.totalReward.toFixed(1)}`;
+        rewardValue.textContent = state.lastReward === null ? "-" : state.lastReward.toFixed(1);
+        return;
+      }
+
+      if (state.trialIndex >= state.totalTrials) {
+        status.textContent = `结束 | 总分 ${state.totalReward.toFixed(1)}${extra}`;
+        rewardValue.textContent = state.lastReward === null ? "-" : state.lastReward.toFixed(1);
+        buttons.forEach((button) => {
+          button.disabled = true;
+        });
+        return;
+      }
+
+      rewardValue.textContent = state.lastReward === null ? "-" : state.lastReward.toFixed(1);
+      status.textContent =
+        `第 ${state.trialIndex + 1} / ${state.totalTrials} 轮 | 总分 ${state.totalReward.toFixed(1)}${extra}`;
+    }
+
+    function updateButtonState() {
+      const playable = state.started && !state.stopped && state.trialIndex < state.totalTrials;
+      buttons.forEach((button) => {
+        button.disabled = !playable;
+      });
+      stopButton.disabled = !state.started || state.stopped || state.trialIndex >= state.totalTrials;
+    }
+
+    function drawChart() {
+      const width = chart.width;
+      const height = chart.height;
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.fillStyle = "#fffaf2";
+      ctx.fillRect(0, 0, width, height);
+
+      const left = { x: 24, y: 24, w: 430, h: 190 };
+      const right = { x: 490, y: 24, w: 180, h: 190 };
+
+      ctx.fillStyle = "#6d6259";
+      ctx.font = "13px Avenir Next, sans-serif";
+      ctx.fillText("累计得分", left.x, 16);
+      ctx.fillText("选择次数", right.x, 16);
+
+      ctx.strokeStyle = "rgba(31, 27, 24, 0.12)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(left.x, left.y, left.w, left.h);
+      ctx.strokeRect(right.x, right.y, right.w, right.h);
+
+      if (!state.started || state.cumulativeRewards.length === 0) {
+        ctx.fillStyle = "#6d6259";
+        ctx.fillText("开始后显示", left.x + 12, left.y + 24);
+        ctx.fillText("开始后显示", right.x + 12, right.y + 24);
+        return;
+      }
+
+      const shownExpectationPath = state.randomExpectationPath.slice(
+        0,
+        state.cumulativeRewards.length
+      );
+      const shownOptimalPath = state.optimalPath.slice(
+        0,
+        state.cumulativeRewards.length
+      );
+      const maxReward = Math.max(
+        ...state.cumulativeRewards,
+        ...shownExpectationPath,
+        ...shownOptimalPath,
+        1
+      );
+
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = "#9f978f";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      shownExpectationPath.forEach((value, index) => {
+        const x = left.x + (index / Math.max(shownExpectationPath.length - 1, 1)) * left.w;
+        const y = left.y + left.h - (value / maxReward) * left.h;
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.setLineDash([10, 5]);
+      ctx.strokeStyle = "#3f7a5c";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      shownOptimalPath.forEach((value, index) => {
+        const x = left.x + (index / Math.max(shownOptimalPath.length - 1, 1)) * left.w;
+        const y = left.y + left.h - (value / maxReward) * left.h;
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.strokeStyle = "#bf4d22";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      state.cumulativeRewards.forEach((value, index) => {
+        const x = left.x + (index / Math.max(state.cumulativeRewards.length - 1, 1)) * left.w;
+        const y = left.y + left.h - (value / maxReward) * left.h;
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+
+      ctx.fillStyle = "#6d6259";
+      ctx.fillText("0", left.x, left.y + left.h + 16);
+      ctx.fillText(String(state.trialIndex), left.x + left.w - 10, left.y + left.h + 16);
+      ctx.fillText(maxReward.toFixed(0), left.x + 4, left.y + 14);
+      ctx.fillStyle = "#bf4d22";
+      ctx.fillRect(left.x, left.y + left.h + 24, 16, 3);
+      ctx.fillStyle = "#6d6259";
+      ctx.fillText("当前", left.x + 22, left.y + left.h + 29);
+      ctx.fillStyle = "#9f978f";
+      ctx.fillRect(left.x + 76, left.y + left.h + 24, 16, 3);
+      ctx.fillStyle = "#6d6259";
+      ctx.fillText("随机", left.x + 98, left.y + left.h + 29);
+      ctx.fillStyle = "#3f7a5c";
+      ctx.fillRect(left.x + 152, left.y + left.h + 24, 16, 3);
+      ctx.fillStyle = "#6d6259";
+      ctx.fillText("最优", left.x + 174, left.y + left.h + 29);
+
+      const maxCount = Math.max(...state.choiceCounts, 1);
+      const barWidth = 28;
+      const barGap = 14;
+      state.choiceCounts.forEach((count, index) => {
+        const x = right.x + 18 + index * (barWidth + barGap);
+        const barHeight = (count / maxCount) * (right.h - 28);
+        const y = right.y + right.h - barHeight;
+        ctx.fillStyle = index === state.lastChoice ? "#bf4d22" : "#d7b5a7";
+        ctx.fillRect(x, y, barWidth, barHeight);
+        ctx.fillStyle = "#1f1b18";
+        ctx.fillText(String(index + 1), x + 9, right.y + right.h + 16);
+        ctx.fillText(String(count), x + 6, y - 6);
+      });
+    }
+
+    function chooseArm(arm) {
+      if (!state.started || state.stopped || state.trialIndex >= state.totalTrials) return;
+
+      const reward = state.payouts[state.trialIndex][arm];
+      state.totalReward += reward;
+      state.lastChoice = arm;
+      state.lastReward = reward;
+      state.choiceCounts[arm] += 1;
+      state.cumulativeRewards.push(state.totalReward);
+      state.trialIndex += 1;
+
+      buttons.forEach((button, index) => {
+        button.classList.toggle("active", index === arm);
+      });
+
+      updateStatus(` | 选了 ${arm + 1}，得到 ${reward.toFixed(1)}`);
+      updateButtonState();
+      drawChart();
+    }
+
+    function applyParameters() {
+      const totalTrials = Math.min(500, Math.max(10, Number(trialInput.value) || 150));
+      const seed = Number(seedInput.value) || 42;
+      const driftStd = Math.min(20, Math.max(0, Number(driftInput.value) || 2.8));
+
+      trialInput.value = totalTrials;
+      seedInput.value = seed;
+      driftInput.value = driftStd;
+
+      state.started = true;
+      state.stopped = false;
+      state.totalTrials = totalTrials;
+      state.seed = seed;
+      state.driftStd = driftStd;
+      state.trialIndex = 0;
+      state.totalReward = 0;
+      state.lastChoice = null;
+      state.lastReward = null;
+      state.payouts = generateBlock(totalTrials, seed, driftStd);
+      state.cumulativeRewards = [];
+      state.choiceCounts = [0, 0, 0, 0];
+      buttons.forEach((button) => button.classList.remove("active"));
+
+      const randomExpectation = computeRandomExpectation(state.payouts);
+      const optimalPath = computeOptimalPath(state.payouts);
+      state.randomExpectationTotal = randomExpectation.total;
+      state.randomExpectationPath = randomExpectation.path;
+      state.optimalTotal = optimalPath.total;
+      state.optimalPath = optimalPath.path;
+
+      baseline.textContent =
+        `随机期望：${state.randomExpectationTotal.toFixed(1)} | 最优总分：${state.optimalTotal.toFixed(1)}`;
+
+      updateStatus();
+      updateButtonState();
+      drawChart();
+    }
+
+    function stopGame() {
+      if (!state.started || state.stopped || state.trialIndex >= state.totalTrials) return;
+      state.stopped = true;
+      updateStatus();
+      updateButtonState();
+      drawChart();
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        chooseArm(Number(button.dataset.arm));
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const value = Number(event.key);
+      if (value >= 1 && value <= 4) {
+        chooseArm(value - 1);
+      }
+    });
+
+    startButton.addEventListener("click", applyParameters);
+    stopButton.addEventListener("click", stopGame);
+
+    updateStatus();
+    updateButtonState();
+    drawChart();
+  </script>
+</body>
+</html>

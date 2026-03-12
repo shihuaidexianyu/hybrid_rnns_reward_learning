@@ -8,6 +8,22 @@ usually be bandit tasks performed by humans.
 The Colab train_models.ipynb provides a simple example of running this code
 interactively.
 
+To play a local version of the four-armed drifting bandit task in your
+terminal, run:
+```bash
+python3 -m hybrid_rnns_reward_learning
+```
+
+To use a 4-second response deadline similar to the lab task, run:
+```bash
+python3 -m hybrid_rnns_reward_learning --deadline 4
+```
+
+For a browser-based visual version, open:
+```text
+./play_bandit_visual.html
+```
+
 ## Installation
 
 To install the code and requirements, please run the following command:

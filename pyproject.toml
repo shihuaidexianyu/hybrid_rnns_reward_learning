@@ -29,6 +29,9 @@ dependencies = [
 "ml_collections>0.1",
 ]
 
+[project.scripts]
+play-bandit = "hybrid_rnns_reward_learning.play_bandit:main"
+
 [project.urls]
 homepage = "https://github.com/google-deepmind/hybrid_rnns_reward_learning"
 repository = "https://github.com/google-deepmind/hybrid_rnns_reward_learning"
