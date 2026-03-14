@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-class BaseRL(ABC):
+class BaseAgent(ABC):
     def __init__(self, n_actions=4):
         self.n_actions = n_actions
 

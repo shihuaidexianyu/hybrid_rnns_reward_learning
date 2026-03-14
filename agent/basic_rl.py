@@ -1,8 +1,8 @@
 import numpy as np
-from agent.base_rl import BaseRL
+from agent.base_agent import BaseAgent
 
 
-class BasicRL(BaseRL):
+class BasicRL(BaseAgent):
     def __init__(self, n_actions=4, alpha=0.2, beta=0.1, q_init=0.0):
         super().__init__(n_actions=n_actions)
         self.alpha = alpha

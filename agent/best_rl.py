@@ -1,8 +1,8 @@
 import numpy as np
-from agent.base_rl import BaseRL
+from agent.base_agent import BaseAgent
 
 
-class BestRL(BaseRL):
+class BestRL(BaseAgent):
     def __init__(
         self,
         n_actions=4,
