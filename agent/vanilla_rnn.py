@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from agent.base_agent import BaseAgent
 
 
-class VanillaRNNBandit(BaseAgent, nn.Module):
+class VanillaRNN(BaseAgent, nn.Module):
     def __init__(self, n_actions=4, hidden_size=32):
         BaseAgent.__init__(self, n_actions=n_actions)
         nn.Module.__init__(self)
